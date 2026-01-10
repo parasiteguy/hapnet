@@ -1,0 +1,2 @@
+[console_scripts]
+hapnet = hapnet.cli:main
