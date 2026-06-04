@@ -1,0 +1,13 @@
+field	value
+hapnet_version	0.2.1
+date_time_utc	2026-06-03T16:38:45.599167+00:00
+input_file	hydroides_coi_aligned.fasta
+output_file	hydroidesnetwork.svg
+algorithm	minimum_spanning_tree
+distance	hamming
+n_sequences	67
+n_haplotypes	12
+phased_mode	false
+metadata_file	
+ignore_ambiguous	false
+network_note	MST-based haplotype graph; not median-joining or statistical-parsimony.
