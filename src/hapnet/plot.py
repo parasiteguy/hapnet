@@ -60,7 +60,7 @@ def _resolve_overlaps(
 
                 if dist < min_dist:
                     direction = dx / dist
-                    overlap = (min_dist - dist)
+                    overlap = min_dist - dist
 
                     shift = direction * overlap * 0.5 * step_size
                     P[i] -= shift
@@ -89,15 +89,15 @@ def _draw_edge_with_ticks(
     zorder: int = 1,
 ):
     """
-    Draw an edge line and (optionally) mutation tick marks.
+    Draw an edge line and optionally draw mutation tick marks.
 
-    weight: integer mutational distance. We draw (weight - 1) ticks so a
-            1-step edge has no ticks (reduces clutter).
+    weight : int
+        Integer mutational distance. HapNet draws weight - 1 ticks so that
+        a 1-step edge has no tick marks.
     """
     x1, y1 = float(p1[0]), float(p1[1])
     x2, y2 = float(p2[0]), float(p2[1])
 
-    # Edge line
     ax.plot([x1, x2], [y1, y2], lw=lw, color=edge_color, zorder=zorder)
 
     if not draw_ticks:
@@ -112,14 +112,14 @@ def _draw_edge_with_ticks(
     if L == 0.0:
         return
 
-    u = v / L                      # unit along-edge
-    perp = np.array([-u[1], u[0]]) # unit perpendicular
+    u = v / L
+    perp = np.array([-u[1], u[0]])
 
-    # Center ticks at the midpoint. If the edge is short, compress spacing so ticks still fit.
+    # Center ticks at the midpoint. If the edge is short, compress spacing.
     total_span = (n_ticks - 1) * tick_gap
     max_span = max(0.0, L - 2.0 * tick_gap)
     if total_span > max_span and n_ticks > 1:
-        tick_gap_eff = max_span / (n_ticks - 1) if (n_ticks - 1) else tick_gap
+        tick_gap_eff = max_span / (n_ticks - 1)
     else:
         tick_gap_eff = tick_gap
 
@@ -130,7 +130,13 @@ def _draw_edge_with_ticks(
         center = mid + (start_offset + k * tick_gap_eff) * u
         a = center - 0.5 * tick_length * perp
         b = center + 0.5 * tick_length * perp
-        ax.plot([a[0], b[0]], [a[1], b[1]], lw=tick_lw, color=tick_color, zorder=zorder + 0.1)
+        ax.plot(
+            [a[0], b[0]],
+            [a[1], b[1]],
+            lw=tick_lw,
+            color=tick_color,
+            zorder=zorder + 0.1,
+        )
 
 
 def plot_network(
@@ -138,6 +144,9 @@ def plot_network(
     haplotypes: List[Haplotype],
     out: str = "hapnet.png",
     *,
+    # Label controls
+    show_labels: bool = True,
+    show_counts_in_label: bool = False,
     # Node sizing controls
     min_radius: float = 0.35,
     max_radius: float = 2.10,
@@ -156,8 +165,25 @@ def plot_network(
     # Aesthetics
     figsize: Tuple[float, float] = (10, 7),
     dpi: int = 300,
-    show_counts_in_label: bool = False,
 ):
+    """
+    Plot a population-aware MST-based haplotype graph.
+
+    Parameters
+    ----------
+    G : nx.Graph
+        Minimum-spanning-tree graph returned by HapNet.
+    haplotypes : list of Haplotype
+        Haplotype objects produced by build_haplotypes().
+    out : str
+        Output image path. Supports formats handled by Matplotlib, including
+        PNG, PDF, and SVG.
+    show_labels : bool
+        If True, draw haplotype IDs inside nodes. If False, nodes are unlabeled,
+        producing a cleaner publication-style figure.
+    show_counts_in_label : bool
+        If True and show_labels is True, include sample counts below haplotype IDs.
+    """
     if not haplotypes:
         raise ValueError("No haplotypes to plot.")
 
@@ -234,7 +260,7 @@ def plot_network(
             zorder=1,
         )
 
-    # 8) Nodes (pies)
+    # 8) Nodes as population pie charts
     for i, h in enumerate(haplotypes):
         x, y = pos[i]
         r = radii[i]
@@ -269,9 +295,18 @@ def plot_network(
         )
         ax.add_patch(outline)
 
-        label = f"{h.hap_id}\n(n={h.n_total})" if show_counts_in_label else h.hap_id
-        fs = 11 if not show_counts_in_label else 9
-        ax.text(float(x), float(y), label, ha="center", va="center", fontsize=fs, zorder=4)
+        if show_labels:
+            label = f"{h.hap_id}\n(n={h.n_total})" if show_counts_in_label else h.hap_id
+            fs = 11 if not show_counts_in_label else 9
+            ax.text(
+                float(x),
+                float(y),
+                label,
+                ha="center",
+                va="center",
+                fontsize=fs,
+                zorder=4,
+            )
 
     # 9) Limits
     xs = [pos[i][0] for i in range(n)]
