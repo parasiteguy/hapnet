@@ -1,0 +1,5 @@
+hap_id	populations	counts_by_pop
+H1	CT,MA,ME,NY,RI	CT:3,MA:4,ME:2,NY:2,RI:2
+H2	CT,MA,ME,NY,RI	CT:1,MA:2,ME:2,NY:1,RI:4
+H3	CT,NY	CT:1,NY:4
+H5	ME,NY	ME:2,NY:3
