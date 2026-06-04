@@ -1,0 +1,7 @@
+metric	value
+n_sequences	50
+n_haplotypes	8
+n_populations	5
+n_shared_haplotypes	4
+n_private_haplotypes	4
+max_haplotype_size	13
